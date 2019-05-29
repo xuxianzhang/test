@@ -5,22 +5,20 @@ import java.awt.Font;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import java.awt.BorderLayout;
 import javax.swing.SwingConstants;
-import java.awt.Label;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.io.File;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JList;
-import java.awt.Color;
-import javax.swing.border.LineBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import java.awt.Component;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -32,7 +30,9 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JButton;
+import javax.swing.JTextField;
 
 public class Vote {
 
@@ -63,7 +63,13 @@ public class Vote {
 
 	private final int ticket = 3;
 	private int select = 0;
+	private int votedPer = 0;
+	private int votes = 0;
 	private ChartPanel charPanel = null;
+	private List<JTextField> voteField;
+	private JTextField voted;
+	private JTextField allVotes;
+	private List<Candidate> candidate;
 
 	class Candidate {
 		private String name;
@@ -116,7 +122,7 @@ public class Vote {
 		frame.setBounds(100, 100, 734, 459);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		List<Candidate> candidate = new ArrayList<Candidate>();
+		candidate = new ArrayList<Candidate>();
 		Candidate candidateOne = new Candidate("张三", "班长");
 		Candidate candidateTwo = new Candidate("李四", "副班长");
 		Candidate candidateThree = new Candidate("王五", "团委");
@@ -133,44 +139,52 @@ public class Vote {
 		frame.getContentPane().setLayout(null);
 
 		JLabel lblNewLabel = new JLabel("候选人信息");
-		lblNewLabel.setBounds(86, 65, 229, 15);
+		lblNewLabel.setBounds(86, 65, 124, 15);
 		frame.getContentPane().add(lblNewLabel);
-		//增加图标
-		charPanel = getCharPanel(candidate);
+
+		JLabel vectorLabel = new JLabel("得票");
+		vectorLabel.setBounds(312, 65, 36, 15);
+		frame.getContentPane().add(vectorLabel);
+
+		voteField = new ArrayList<JTextField>();
+
+		// 增加图标
+		JFreeChart chart = getFreeChart(candidate);
+		charPanel = new ChartPanel(chart, true);
+		charPanel.setBounds(396, 99, 301, 239);
 		frame.getContentPane().add(charPanel);
-		
+
 		List<JCheckBox> candidateInfo = new ArrayList<JCheckBox>();
 		candidate.forEach(item -> {
+			JTextField vote = new JTextField();
+			vote.setColumns(10);
+			vote.setEditable(false);
+			vote.setText("0");
+			vote.setHorizontalAlignment(SwingConstants.CENTER);
+			vote.setBounds(312, 86 + candidateInfo.size() * 25, 36, 21);
+			voteField.add(vote);
+
+			frame.getContentPane().add(vote);
 			JCheckBox checkBox = new JCheckBox(item.getInfo());
 			checkBox.setBounds(86, 86 + candidateInfo.size() * 25, 229, 23);
-			checkBox.setSelected(true);
-			checkBox.addChangeListener(new ChangeListener() {
+			checkBox.setSelected(false);
+			checkBox.addItemListener(new ItemListener() {
+
 				@Override
-				public void stateChanged(ChangeEvent e) {
+				public void itemStateChanged(ItemEvent e) {
 					JCheckBox checkBox = (JCheckBox) e.getSource();
-					// TODO Auto-generated method stub
-					if(checkBox.isSelected()) {
-						System.out.println("11");
-					}else {
-						System.out.println("22");
+					//System.out.println(checkBox.isSelected());
+					if (checkBox.isSelected()) {
+						++select;
+						if (select > ticket) {
+							checkBox.setSelected(false);
+						}
+					} else {
+						--select;
 					}
 				}
+
 			});
-//			checkBox.addMouseListener(new MouseAdapter() {
-//				@Override
-//				public void mouseClicked(MouseEvent e) {
-//					JCheckBox checkBox = (JCheckBox) e.getSource();
-//					if(select>=ticket && !checkBox.isSelected()) {
-//						return;
-//					}else if(checkBox.isSelected()){
-//						checkBox.setSelected(false);
-//						--select;
-//					}else if(select<ticket){
-//						checkBox.setSelected(true);
-//						++select;
-//					}
-//				}
-//			});
 
 			candidateInfo.add(checkBox);
 			frame.getContentPane().add(checkBox);
@@ -178,33 +192,152 @@ public class Vote {
 
 		// 投票按钮
 		JButton btnNewButton = new JButton("投票");
-		btnNewButton.setBounds(86, 292, 114, 46);
-
+		btnNewButton.setBounds(86, 350, 114, 46);
 
 		btnNewButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				votedPer++;
 				candidateInfo.forEach(item -> {
 					if (item.isSelected()) {
 						candidate.get(candidateInfo.indexOf(item)).addVoter();
 						item.setSelected(false);
 					}
 				});
-				charPanel = getCharPanel(candidate);
-				charPanel.repaint();
+				repaintChart(candidate);
+				setVoteInfo(candidate);
+				voted.setText(String.valueOf(votedPer));
 				select = 0;
 			}
 		});
 		frame.getContentPane().add(btnNewButton);
 
+		voted = new JTextField();
+		voted.setHorizontalAlignment(SwingConstants.CENTER);
+		voted.setBounds(150, 292, 48, 46);
+		frame.getContentPane().add(voted);
+		voted.setText("0");
+		voted.setColumns(10);
+
+		JLabel label = new JLabel("已投人数：");
+		label.setBounds(86, 308, 72, 15);
+		frame.getContentPane().add(label);
+
+		JLabel label_1 = new JLabel("总票数：");
+		label_1.setBounds(258, 308, 72, 15);
+		frame.getContentPane().add(label_1);
+
+		allVotes = new JTextField();
+		allVotes.setText("0");
+		allVotes.setHorizontalAlignment(SwingConstants.CENTER);
+		allVotes.setColumns(10);
+		allVotes.setBounds(322, 292, 48, 46);
+		frame.getContentPane().add(allVotes);
+
+		// 导出按钮
+		JButton button = new JButton("导出结果");
+		button.setBounds(256, 350, 114, 46);
+		button.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				showFileSaveDialog(frame, getRes());
+			}
+		});
+		frame.getContentPane().add(button);
 		// 导出投票数据
 	}
+	
+	private String getRes() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("投票人数：");
+		buffer.append(votedPer);
+		buffer.append("\r\n");
+		buffer.append("总票数：");
+		buffer.append(votes);
+		buffer.append("\r\n");
+		candidate.forEach(item->{
+			buffer.append("竞选人：");
+			buffer.append(item.getName());
+			buffer.append(".    ");
+			
+			buffer.append("职务：");
+			buffer.append(item.getPosition());
+			buffer.append(".    ");
+			
+			buffer.append("得票：");
+			buffer.append(item.getVoter());
+			buffer.append(".");
+			buffer.append("\r\n");
+		});
+		return buffer.toString();
+	}
+	
+	private static void showFileSaveDialog(Component parent, String res) {
+		// 创建一个默认的文件选取器
+		JFileChooser fileChooser = new JFileChooser();
 
-	private static ChartPanel getCharPanel(List<Candidate> candidate) {
+		// 设置打开文件选择框后默认输入的文件名
+		fileChooser.setSelectedFile(new File("投票结果.txt"));
+		FileOutputStream fos = null;
+		try {
+			// 打开文件选择框（线程将被阻塞, 直到选择框被关闭）
+			int result = fileChooser.showSaveDialog(parent);
+
+			if (result == JFileChooser.APPROVE_OPTION) {
+				// 如果点击了"保存", 则获取选择的保存路径
+				File file = fileChooser.getSelectedFile();
+				fos = new FileOutputStream(file);
+				byte[] out = res.getBytes();
+				fos.write(out);
+			}
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			if(fos!=null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	private void setVoteInfo(List<Candidate> candidate) {
+		// 修改得票信息
+		votes = 0;
+		candidate.forEach(item -> {
+			int index = candidate.indexOf(item);
+			votes += item.getVoter();
+			voteField.get(index).setText(String.valueOf(item.getVoter()));
+		});
+		allVotes.setText(String.valueOf(votes));
+	}
+
+	private void repaintChart(List<Candidate> candidate) {
 		// 统计信息,柱形图
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-		candidate.forEach(item->{
+		candidate.forEach(item -> {
 			dataset.addValue(item.getVoter(), item.getPosition(), item.getName());
+
+		});
+
+		JFreeChart chart = getFreeChart(candidate);
+		charPanel.setChart(chart);
+		charPanel.repaint();
+	}
+
+	private JFreeChart getFreeChart(List<Candidate> candidate) {
+
+		// 统计信息,柱形图
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		candidate.forEach(item -> {
+			dataset.addValue(item.getVoter(), item.getPosition(), item.getName());
+
 		});
 
 		JFreeChart chart = ChartFactory.createBarChart("计票信息", "候选人", "得票数", // 数值轴的显示标签
@@ -219,12 +352,10 @@ public class Vote {
 		domainAxis.setLabelFont(new Font("黑体", Font.BOLD, 10)); // 水平底部标题
 		domainAxis.setTickLabelFont(new Font("宋体", Font.BOLD, 8)); // 垂直标题
 		ValueAxis rangeAxis = plot.getRangeAxis();// 获取柱状
-		rangeAxis.setRange(0, 100);                                                                                                                                                                                                                                                                                                                                                                                                                
+		// rangeAxis.setRange(0, 30);
 		rangeAxis.setLabelFont(new Font("黑体", Font.BOLD, 11));
 		chart.getLegend().setItemFont(new Font("黑体", Font.BOLD, 11));
 		chart.getTitle().setFont(new Font("宋体", Font.BOLD, 14));// 设置标题字体
-		ChartPanel charPanel = new ChartPanel(chart, true);
-		charPanel.setBounds(396, 99, 301, 239);
-		return charPanel;
+		return chart;
 	}
 }
