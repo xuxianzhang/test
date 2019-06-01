@@ -2,6 +2,7 @@ package com.xxz.test;
 
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.Image;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -31,6 +32,8 @@ import org.jfree.data.category.DefaultCategoryDataset;
 
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
@@ -60,7 +63,7 @@ public class Vote {
 	public Vote() {
 		initialize();
 	}
-
+	
 	private final int ticket = 3;
 	private int select = 0;
 	private int votedPer = 0;
@@ -114,11 +117,39 @@ public class Vote {
 		}
 	}
 
+	private ImageIcon getIcon(String position) {
+		ImageIcon icon = null;
+		switch(position){
+		case "班长":
+			icon = new ImageIcon("F:\\icon\\1.png");
+			break;
+		case "副班长":
+			icon = new ImageIcon("F:\\icon\\2.png");
+			break;
+		case "团委":
+			icon = new ImageIcon("F:\\icon\\3.png");
+			break;
+		case "体委":
+			icon = new ImageIcon("F:\\icon\\4.png");
+			break;
+		case "学委":
+			icon = new ImageIcon("F:\\icon\\5.png");
+			break;
+		case "文委":
+			icon = new ImageIcon("F:\\icon\\6.png");
+			break;
+		default:
+			break;
+		}
+		icon.setImage(icon.getImage().getScaledInstance(36, 21, Image.SCALE_DEFAULT));
+		return icon;
+	}
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
 		frame = new JFrame();
+		frame.setTitle("三好学生推优系统");
 		frame.setBounds(100, 100, 734, 459);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -139,7 +170,7 @@ public class Vote {
 		frame.getContentPane().setLayout(null);
 
 		JLabel lblNewLabel = new JLabel("候选人信息");
-		lblNewLabel.setBounds(86, 65, 124, 15);
+		lblNewLabel.setBounds(45, 65, 124, 15);
 		frame.getContentPane().add(lblNewLabel);
 
 		JLabel vectorLabel = new JLabel("得票");
@@ -147,7 +178,9 @@ public class Vote {
 		frame.getContentPane().add(vectorLabel);
 
 		voteField = new ArrayList<JTextField>();
-
+		
+		//初始化图标
+		
 		// 增加图标
 		JFreeChart chart = getFreeChart(candidate);
 		charPanel = new ChartPanel(chart, true);
@@ -185,9 +218,14 @@ public class Vote {
 				}
 
 			});
-
+			JLabel iconLabel = new JLabel();
+			iconLabel.setBounds(45, 86 + candidateInfo.size() * 25, 36, 21);
+			iconLabel.setIcon(getIcon(item.getPosition()));
+			frame.getContentPane().add(iconLabel);
+			
 			candidateInfo.add(checkBox);
 			frame.getContentPane().add(checkBox);
+			
 		});
 
 		// 投票按钮
