@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2021-05-16T13:49:44.860Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36" etag="lkHOVYPpY1tF4Z3pFcTY" version="14.6.13" type="github">
+<mxfile host="app.diagrams.net" modified="2021-05-16T13:53:47.894Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36" etag="GwOK7lrtSDAvPwtWFVfD" version="14.6.13" type="github">
   <diagram name="Page-1" id="efa7a0a1-bf9b-a30e-e6df-94a7791c09e9">
     <mxGraphModel dx="3768" dy="2290" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="826" pageHeight="1169" background="#ffffff" math="0" shadow="0">
       <root>
@@ -206,6 +206,9 @@
         </mxCell>
         <mxCell id="mZiMFnjM9PpdxxEZNTX5-168" value="&lt;h1&gt;方案一：使用独立部署的PostgreQL&lt;/h1&gt;&lt;span style=&quot;text-align: center&quot;&gt;1. 数据库 PostgreQL(稳定性高/开源/可存储json、jsonb)&lt;br&gt;2. 数据库部署最好用单例&lt;br&gt;3. 数据存储使用对象存储&lt;br&gt;4. ORM框架&amp;nbsp;&lt;br&gt;5. 占用master节点资源部署数据库&lt;br&gt;6. 集群中业务pods访问本地master节点的数据库&lt;br&gt;7. master节点负载高&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;/span&gt;&lt;p&gt;.&lt;/p&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="-530" y="-930" width="580" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="mZiMFnjM9PpdxxEZNTX5-170" value="&lt;h1&gt;&lt;span&gt;问题：&lt;/span&gt;&lt;/h1&gt;&lt;h1&gt;&lt;span style=&quot;font-size: 12px ; font-weight: 400&quot;&gt;1. 是可选功能还是必须功能。&lt;/span&gt;&lt;/h1&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px ; font-weight: 400&quot;&gt;2. 对性能有无要求&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px ; font-weight: 400&quot;&gt;3. 对数据安全和网络安全的要求&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px ; font-weight: 400&quot;&gt;4. 用来干嘛？单纯的通知安全部门进行扫描？&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-size: 12px ; font-weight: 400&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="100" y="-1030" width="700" height="370" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
